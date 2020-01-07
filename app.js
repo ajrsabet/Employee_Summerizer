@@ -9,8 +9,8 @@ const writeFileAsync = util.promisify(fs.writeFile);
 ////////////////// Main Function ///////////////////////
 async function main() {
   try {
-    const userInput = await promptUser();
-    console.log('user Input: ' + JSON.stringify(userInput));
+    const newEmployee = await newEmployee();
+    console.log('user Input: ' + JSON.stringify(newEmployee));
 
     
     const html = await generateHTML(userInput);
@@ -25,8 +25,7 @@ async function main() {
 
 
 ////////////////// Prompt User ///////////////////////
-async function promptUser() {
-  try {
+function newEmployee() {
    const responses = await inquirer.prompt([
     {
       name: 'email',
@@ -39,17 +38,13 @@ async function promptUser() {
       message: 'What is your ID?',
     },
     {
-      name: 'position',
+      name: 'role',
       type: 'list',
       message: 'What is their possition?',
       choices: ['Engineer','Intern','Manager'],
     }
   ])
 return responses;
-  
-} catch (err) {
-    console.log(err);
-  }
 };
 
 
