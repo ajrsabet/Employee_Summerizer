@@ -1,7 +1,6 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const util = require('util');
-// const axios = require('axios');
 
 
 const writeFileAsync = util.promisify(fs.writeFile);
@@ -42,8 +41,9 @@ async function promptUser() {
     {
       name: 'position',
       type: 'list',
-      message: ['Engineer','Intern','Manager',],
-    },
+      message: 'What is their possition?',
+      choices: ['Engineer','Intern','Manager'],
+    }
   ])
 return responses;
   
