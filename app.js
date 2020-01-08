@@ -6,44 +6,21 @@ const Manager = require("./lib/Manager.js");
 const Intern = require("./lib/Intern.js");
 const Engineer = require("./lib/Engineer.js");
 
-
 const writeFileAsync = util.promisify(fs.writeFile);
 
-
-////////////////// Main Function ///////////////////////
-// async function main() {
-//   try {
-    // const html = await generateHTML(newEmployee);
-    // writeFileAsync('index.html', html, 'utf8');
-
-
-//     const newEmployee = await newEmployee();
-//     console.log('user Input: ' + JSON.stringify(newEmployee));
-
-//   } catch (err) {
-//     console.log(err);
-//   }
-
-// }
-
-
-
+// Variable used to collect html generated for each employee added
 const employeeCardsArr = [];
 let employeeCardsStr;
 
 
-
+// Main function: asks initial questions relevant to all employees
 function newEmployee(){
   inquirer.prompt([
       {
         type: "list",
         message: "What's your role?",
         name: "role",
-        choices: [
-          "Manager",
-          "Engineer",
-          "Intern"
-        ]
+        choices: ["Manager","Engineer","Intern"]
       },
       {
         type: "input",
@@ -77,7 +54,7 @@ function newEmployee(){
     })
 }
 
-
+// Create manager
 function managerData(answers){
   inquirer.prompt([
       {
@@ -86,16 +63,16 @@ function managerData(answers){
         name: "officeNumber"
       }
     ]).then(function(office){
-        console.log(answers, office);
+        // Create new manager from class
         const manager = new Manager (answers.name, answers.id, answers.email, office.officeNumber)
-
+        // add new card html to array
         employeeCardsArr.push(manager.appendHtml()); 
-        console.log(employeeCardsArr);
+        // move to next employee
         nextEmployee();
       })
 }
 
-
+// Create engineer
 function engineerData(answers){
   inquirer.prompt([
       {
@@ -104,17 +81,16 @@ function engineerData(answers){
         name: "gitName"
       }
     ]).then(function(gitName){
-      console.log(answers, gitName);
+      // Create new engineer from class
       const engineer = new Engineer (answers.name, answers.id, answers.email, gitName.gitName)
-      
+      // add new card html to array
       employeeCardsArr.push(engineer.appendHtml()); 
-      console.log(employeeCardsArr);
-      
+      // move to next employee
       nextEmployee();
   })
 }
 
-
+// Create intern
 function internData(answers){
   inquirer.prompt([
       {
@@ -123,15 +99,17 @@ function internData(answers){
         name: "school"
       }
     ]).then(function(school){
-      console.log(answers, school);
+      // Create new inter from class
       const intern = new Intern (answers.name, answers.id, answers.email, school.school)
-      intern.appendHtml()
+      // add new card html to array
+      employeeCardsArr.push(intern.appendHtml());
+      // move to next employee
       nextEmployee();
     })
 }
 
-
-function nextEmployee(response){
+// Create next employee OR compile and write html
+function nextEmployee(){
   inquirer.prompt([
     {
       type: "list",
@@ -146,29 +124,14 @@ function nextEmployee(response){
 if (response.addNext === "yes") {
   newEmployee();
 } else {
-  employeeCardsStr = employeeCardsArr.join(",");
+  employeeCardsStr = employeeCardsArr.join("");
   generateHTML();
-    
-  
-}
-  })
-}
+};
+  });
+};
 
-
-// manager icon
-// `<div>Icons made by <a href="https://www.flaticon.com/authors/eucalyp" title="Eucalyp">Eucalyp</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>`
-
-// engineer icon
-// `<div>Icons made by <a href="https://www.flaticon.com/authors/ultimatearm" title="ultimatearm">ultimatearm</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>`
-
-// student icon
-// `<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>`
-
-
-
-////////////////// Write HTML ///////////////////////  
+////////////////// Write HTML ////////////////// 
 function generateHTML() {
-
     const html =
       `<!doctype html>
 <html lang="en">
@@ -179,13 +142,10 @@ function generateHTML() {
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <title>Developer Profile</title>
 </head>
-<style>
-
-</style>
 <body>
   <div class="container">
-    <div class="jubotron">
-      <h1 class="display-4">Hello, world!</h1>
+    <div class="jubotron" style="background-color: lightgray; height: 100vh;">
+    <center><h1 class="display-4" style="margin: 50px">My Team Roster</h1></center>
       <div class="row d-flex justify-content-around">
       ${employeeCardsStr}
       </div>
