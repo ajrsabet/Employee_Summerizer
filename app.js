@@ -1,58 +1,176 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const util = require('util');
+// const Employee = require("./Employee.js");
+const Manager = require("./lib/Manager.js");
+const Intern = require("./lib/Intern.js");
+const Engineer = require("./lib/Engineer.js");
 
 
 const writeFileAsync = util.promisify(fs.writeFile);
 
 
 ////////////////// Main Function ///////////////////////
-async function main() {
-  try {
-    const newEmployee = await newEmployee();
-    console.log('user Input: ' + JSON.stringify(newEmployee));
+// async function main() {
+//   try {
+    // const html = await generateHTML(newEmployee);
+    // writeFileAsync('index.html', html, 'utf8');
 
-    
-    const html = await generateHTML(userInput);
-    writeFileAsync('index.html', html, 'utf8');
-    
-  } catch (err) {
-    console.log(err);
-  }
 
+//     const newEmployee = await newEmployee();
+//     console.log('user Input: ' + JSON.stringify(newEmployee));
+
+//   } catch (err) {
+//     console.log(err);
+//   }
+
+// }
+
+
+
+const employeeCardsArr = [];
+let employeeCardsStr;
+
+
+
+function newEmployee(){
+  inquirer.prompt([
+      {
+        type: "list",
+        message: "What's your role?",
+        name: "role",
+        choices: [
+          "Manager",
+          "Engineer",
+          "Intern"
+        ]
+      },
+      {
+        type: "input",
+        message: "What is your Name?",
+        name: "name"
+      },
+      {
+        type: "input",
+        message: "What is your Id?",
+        name: "id"
+      },
+      {
+        type: "input",
+        message: "What is your Email?",
+        name: "email"
+      }
+    ])// add a .then/.catch
+    .then(function(mainAnswer){
+        if (mainAnswer.role==="Manager"){
+            managerData(mainAnswer)
+        }
+        else if(mainAnswer.role==="Engineer"){
+            engineerData(mainAnswer)
+        }
+        else if ( mainAnswer.role==="Intern"){
+            internData(mainAnswer)
+        }
+    })
+    .catch(function(err){
+        console.log(err);
+    })
 }
 
 
+function managerData(answers){
+  inquirer.prompt([
+      {
+        type: "input",
+        message: "What is your Office Number?",
+        name: "officeNumber"
+      }
+    ]).then(function(office){
+        console.log(answers, office);
+        const manager = new Manager (answers.name, answers.id, answers.email, office.officeNumber)
 
-////////////////// Prompt User ///////////////////////
-function newEmployee() {
-   const responses = await inquirer.prompt([
+        employeeCardsArr.push(manager.appendHtml()); 
+        console.log(employeeCardsArr);
+        nextEmployee();
+      })
+}
+
+
+function engineerData(answers){
+  inquirer.prompt([
+      {
+        type: "input",
+        message: "What is your github username?",
+        name: "gitName"
+      }
+    ]).then(function(gitName){
+      console.log(answers, gitName);
+      const engineer = new Engineer (answers.name, answers.id, answers.email, gitName.gitName)
+      
+      employeeCardsArr.push(engineer.appendHtml()); 
+      console.log(employeeCardsArr);
+      
+      nextEmployee();
+  })
+}
+
+
+function internData(answers){
+  inquirer.prompt([
+      {
+        type: "input",
+        message: "What is the interns school name?",
+        name: "school"
+      }
+    ]).then(function(school){
+      console.log(answers, school);
+      const intern = new Intern (answers.name, answers.id, answers.email, school.school)
+      intern.appendHtml()
+      nextEmployee();
+    })
+}
+
+
+function nextEmployee(response){
+  inquirer.prompt([
     {
-      name: 'email',
-      type: 'input',
-      message: 'What is your email?',
-    },
-    {
-      name: 'id',
-      type: 'input',
-      message: 'What is your ID?',
-    },
-    {
-      name: 'role',
-      type: 'list',
-      message: 'What is their possition?',
-      choices: ['Engineer','Intern','Manager'],
+      type: "list",
+        message: "Would you like to add another employee?",
+        name: "addNext",
+        choices: [
+          "yes",
+          "no",
+        ]
     }
-  ])
-return responses;
-};
+  ]).then(function(response){
+if (response.addNext === "yes") {
+  newEmployee();
+} else {
+  employeeCardsStr = employeeCardsArr.join(",");
+  generateHTML();
+    
+  
+}
+  })
+}
+
+
+// manager icon
+// `<div>Icons made by <a href="https://www.flaticon.com/authors/eucalyp" title="Eucalyp">Eucalyp</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>`
+
+// engineer icon
+// `<div>Icons made by <a href="https://www.flaticon.com/authors/ultimatearm" title="ultimatearm">ultimatearm</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>`
+
+// student icon
+// `<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>`
 
 
 
 ////////////////// Write HTML ///////////////////////  
-async function generateHTML(userInput, githubData) {
-  try {    const html = 
-  `<!doctype html>
+function generateHTML() {
+
+    const html =
+      `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -62,11 +180,16 @@ async function generateHTML(userInput, githubData) {
   <title>Developer Profile</title>
 </head>
 <style>
-    
+
 </style>
 <body>
   <div class="container">
-    
+    <div class="jubotron">
+      <h1 class="display-4">Hello, world!</h1>
+      <div class="row d-flex justify-content-around">
+      ${employeeCardsStr}
+      </div>
+    </div>
   </div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
@@ -79,11 +202,8 @@ async function generateHTML(userInput, githubData) {
   </script>
 </body>
 </html>`
-return html;
-  } catch (err) {
-    console.log(err);
-  }
+writeFileAsync('index.html', html, 'utf8');
 };
 
 
-main();
+newEmployee();
